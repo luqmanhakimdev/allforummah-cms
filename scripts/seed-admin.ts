@@ -2,11 +2,15 @@ import { bootstrapDocumentTypes, RbacService } from '@sonicjs-cms/core'
 import { getPlatformProxy } from 'wrangler'
 
 /**
- * Seed script to create initial admin user
+ * Seed script to create initial admin user.
  *
- * Admin credentials:
- * Email: admin@allforummah.com
- * Password: [as entered during setup]
+ * Required env:
+ *   ADMIN_EMAIL
+ *   ADMIN_PASSWORD  (min 8 characters)
+ *
+ * Examples:
+ *   ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='…' npm run seed
+ *   ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='…' npm run seed:prod
  */
 
 async function hashPassword(password) {
@@ -21,7 +25,36 @@ async function hashPassword(password) {
   return `pbkdf2:${iterations}:${saltHex}:${hashHex}`
 }
 
+function requireAdminCredentials() {
+  const email = process.env.ADMIN_EMAIL?.trim()
+  const password = process.env.ADMIN_PASSWORD
+
+  if (!email) {
+    console.error('❌ Set ADMIN_EMAIL before seeding.')
+    process.exit(1)
+  }
+
+  if (!password) {
+    console.error('❌ Set ADMIN_PASSWORD before seeding.')
+    process.exit(1)
+  }
+
+  if (password.length < 8) {
+    console.error('❌ ADMIN_PASSWORD must be at least 8 characters.')
+    process.exit(1)
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    console.error('❌ ADMIN_EMAIL must be a valid email address.')
+    process.exit(1)
+  }
+
+  return { email, password }
+}
+
 async function seed() {
+  const { email, password } = requireAdminCredentials()
   const useProduction = process.argv.includes('--remote') || process.env.SEED_ENV === 'production'
   const { env, dispose } = await getPlatformProxy({
     environment: useProduction ? 'production' : undefined,
@@ -40,22 +73,21 @@ async function seed() {
   console.log(useProduction ? '→ Seeding production D1…' : '→ Seeding local D1…')
 
   try {
-    // Check if admin user already exists
-    const existing = await env.DB.prepare('SELECT id FROM auth_user WHERE email = ?').bind('admin@allforummah.com').first()
+    const existing = await env.DB.prepare('SELECT id FROM auth_user WHERE email = ?').bind(email).first()
     if (existing) {
-      console.log('✓ Admin user already exists')
+      console.log(`✓ Admin user already exists for ${email}`)
       await dispose()
       return
     }
 
-    const passwordHash = await hashPassword('ChangeMe123!')
+    const passwordHash = await hashPassword(password)
     const nowMs = Date.now()
     const odid = `admin-${nowMs}-${Math.random().toString(36).substr(2, 9)}`
 
     await env.DB.batch([
       env.DB.prepare(
         'INSERT INTO auth_user (id, email, first_name, last_name, role, is_active, created_at, updated_at, name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-      ).bind(odid, 'admin@allforummah.com', 'Admin', 'User', 'admin', 1, nowMs, nowMs, 'Admin User'),
+      ).bind(odid, email, 'Admin', 'User', 'admin', 1, nowMs, nowMs, 'Admin User'),
       env.DB.prepare(
         'INSERT INTO auth_account (id, user_id, account_id, provider_id, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
       ).bind(crypto.randomUUID(), odid, odid, 'credential', passwordHash, nowMs, nowMs),
@@ -67,8 +99,8 @@ async function seed() {
     await rbac.addUserRoleByName(odid, 'admin')
 
     console.log('✓ Admin user created successfully')
-    console.log(`  Email: admin@allforummah.com`)
-    console.log(`  Role: admin`)
+    console.log(`  Email: ${email}`)
+    console.log('  Role: admin')
   } catch (error) {
     console.error('❌ Error creating admin user:', error)
     await dispose()

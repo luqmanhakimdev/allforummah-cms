@@ -16,7 +16,7 @@ CMS for the All For Ummah website, built with [SonicJS](https://sonicjs.com) on 
 ```bash
 npm install
 npm run db:migrate:local
-npm run seed
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='your-secure-password' npm run seed
 npm run dev
 ```
 
@@ -26,15 +26,16 @@ Then open:
 - Admin: http://localhost:8787/admin (after login)
 - Health: http://localhost:8787/health
 
-### Default admin
+### Admin bootstrap
 
-| Field    | Value                   |
-|----------|-------------------------|
-| Email    | `admin@allforummah.com` |
-| Password | `ChangeMe123!`          |
+Seeding never stores a password in the repo. Pass credentials via env:
 
-Same credentials are seeded in production via `npm run seed:prod`. Change the password after first login.
+```bash
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='your-secure-password' npm run seed
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='your-secure-password' npm run seed:prod
+```
 
+If an admin was seeded earlier with a published default password, change it in the admin UI immediately.
 ## Production status
 
 Already provisioned on Cloudflare:
