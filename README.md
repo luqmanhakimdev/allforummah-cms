@@ -2,8 +2,6 @@
 
 CMS for the All For Ummah website, built with [SonicJS](https://sonicjs.com) on Cloudflare Workers (D1 + R2).
 
-**Production URL:** https://allforummah-cms.roy-desg.workers.dev  
-**Login:** https://allforummah-cms.roy-desg.workers.dev/auth/login
 
 ## Prerequisites
 
@@ -52,7 +50,6 @@ Already provisioned on Cloudflare:
 | D1 | `allforummah-cms-db` |
 | R2 | `allforummah-cms-media` |
 | Secrets | `BETTER_AUTH_SECRET`, `JWT_SECRET` |
-| URL | https://allforummah-cms.roy-desg.workers.dev |
 
 Local data: `.wrangler/` (gitignored). Production data: Cloudflare D1 + R2.
 
@@ -94,7 +91,7 @@ Repo → **Settings** → **Environments** → create `production`:
 |------|------|--------|
 | Secret | `CLOUDFLARE_API_TOKEN` | Token from step 1 |
 | Secret | `CLOUDFLARE_ACCOUNT_ID` | `3f9e5456f446737d1fcd0178ddd6257c` |
-| Variable | `WORKER_URL` | `https://allforummah-cms.roy-desg.workers.dev` |
+| Variable | `WORKER_URL` | `your-domain` |
 
 ### 3. Ship
 
