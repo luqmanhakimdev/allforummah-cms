@@ -1,0 +1,52 @@
+name = "allforummah-cms"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+account_id = "3f9e5456f446737d1fcd0178ddd6257c"
+preview_urls = false
+
+# Local / default Worker settings
+workers_dev = true
+
+# D1 Database (shared name; local uses Miniflare, production uses remote)
+[[d1_databases]]
+binding = "DB"
+database_name = "allforummah-cms-db"
+database_id = "f2ddce9c-c104-4449-8846-90f6896dd772"
+migrations_dir = "./node_modules/@sonicjs-cms/core/migrations"
+
+# R2 Bucket for media storage
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "allforummah-cms-media"
+
+# Local / default vars (`wrangler dev`)
+[vars]
+ENVIRONMENT = "development"
+CORS_ORIGINS = "http://localhost:8787,http://localhost:4321"
+
+[observability]
+enabled = true
+
+# ---------------------------------------------------------------------------
+# Production — deploy with: wrangler deploy --env production
+# ---------------------------------------------------------------------------
+[env.production]
+name = "allforummah-cms"
+workers_dev = true
+vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://allforummah-cms.roy-desg.workers.dev" }
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "allforummah-cms-db"
+database_id = "f2ddce9c-c104-4449-8846-90f6896dd772"
+migrations_dir = "./node_modules/@sonicjs-cms/core/migrations"
+# Enables `npm run seed:prod` / getPlatformProxy against real D1 (ignored on deploy)
+remote = true
+
+[[env.production.r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "allforummah-cms-media"
+
+[env.production.observability]
+enabled = true
