@@ -90,7 +90,7 @@ Repo → **Settings** → **Environments** → create `production`:
 | Type | Name | Value |
 |------|------|--------|
 | Secret | `CLOUDFLARE_API_TOKEN` | Token from step 1 |
-| Secret | `CLOUDFLARE_ACCOUNT_ID` | `3f9e5456f446737d1fcd0178ddd6257c` |
+| Secret | `CLOUDFLARE_ACCOUNT_ID` | `your account` |
 | Variable | `WORKER_URL` | `your-domain` |
 
 ### 3. Ship
