@@ -18,7 +18,9 @@
     "update:beta": "npm install @sonicjs-cms/core@beta --save",
     "update:plugin": "tsx scripts/update-plugin.ts",
     "seed": "tsx scripts/seed-admin.ts",
-    "seed:prod": "tsx scripts/seed-admin.ts --remote"
+    "seed:prod": "tsx scripts/seed-admin.ts --remote",
+    "set-password": "tsx scripts/set-password.ts",
+    "set-password:prod": "tsx scripts/set-password.ts --remote"
   },
   "dependencies": {
     "@sonicjs-cms/core": "^3.0.0-beta.25"

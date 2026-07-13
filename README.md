@@ -35,7 +35,13 @@ ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='your-secure-password' npm run seed
 ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='your-secure-password' npm run seed:prod
 ```
 
-If an admin was seeded earlier with a published default password, change it in the admin UI immediately.
+To change an existing user's password (updates login + profile password fields):
+
+```bash
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='your-new-password' npm run set-password:prod
+```
+
+Prefer `set-password:prod` over the admin UI password form — SonicJS login reads `auth_account`, while the UI only writes `auth_user.password_hash`.
 ## Production status
 
 Already provisioned on Cloudflare:
@@ -116,6 +122,8 @@ scripts/seed-admin.ts  # Admin bootstrap (local + --remote)
 | `npm run db:migrate` | Remote D1 migrations |
 | `npm run seed` | Seed local admin |
 | `npm run seed:prod` | Seed production admin |
+| `npm run set-password` | Reset local password |
+| `npm run set-password:prod` | Reset production password |
 | `npm run type-check` | TypeScript check |
 
 ## Docs

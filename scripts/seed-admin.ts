@@ -86,8 +86,8 @@ async function seed() {
 
     await env.DB.batch([
       env.DB.prepare(
-        'INSERT INTO auth_user (id, email, first_name, last_name, role, is_active, created_at, updated_at, name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-      ).bind(odid, email, 'Admin', 'User', 'admin', 1, nowMs, nowMs, 'Admin User'),
+        'INSERT INTO auth_user (id, email, first_name, last_name, role, is_active, created_at, updated_at, name, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+      ).bind(odid, email, 'Admin', 'User', 'admin', 1, nowMs, nowMs, 'Admin User', passwordHash),
       env.DB.prepare(
         'INSERT INTO auth_account (id, user_id, account_id, provider_id, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
       ).bind(crypto.randomUUID(), odid, odid, 'credential', passwordHash, nowMs, nowMs),
