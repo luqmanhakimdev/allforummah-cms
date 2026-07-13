@@ -24,6 +24,8 @@ bucket_name = "allforummah-cms-media"
 [vars]
 ENVIRONMENT = "development"
 CORS_ORIGINS = "http://localhost:8787,http://localhost:4321"
+# Used by SonicJS to build default pub-*.r2.dev media URLs
+BUCKET_NAME = "allforummah-cms-media"
 
 [observability]
 enabled = true
@@ -34,7 +36,7 @@ enabled = true
 [env.production]
 name = "allforummah-cms"
 workers_dev = true
-vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://allforummah-cms.roy-desg.workers.dev" }
+vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://allforummah-cms.roy-desg.workers.dev", BUCKET_NAME = "allforummah-cms-media" }
 
 [[env.production.d1_databases]]
 binding = "DB"

@@ -1,7 +1,7 @@
 /**
  * Blog Posts Collection
  *
- * Example collection configuration for blog posts
+ * Blog posts with featured image and gallery media (R2 via MEDIA_BUCKET).
  */
 
 import type { CollectionConfig } from '@sonicjs-cms/core';
@@ -28,10 +28,29 @@ export default {
         required: true,
         maxLength: 200,
       },
+      excerpt: {
+        type: 'textarea',
+        title: 'Excerpt',
+        maxLength: 300,
+        helpText: 'Short summary used in listings and SEO meta tags',
+      },
       content: {
         type: 'lexical',
         title: 'Content',
         required: true,
+      },
+      featuredImage: {
+        type: 'media',
+        title: 'Featured Image',
+        helpText: 'Main image shown in listings and at the top of the post',
+      },
+      gallery: {
+        type: 'array',
+        title: 'Gallery',
+        helpText: 'Additional images for the post',
+        items: {
+          type: 'media',
+        },
       },
       author: {
         type: 'user',
@@ -48,7 +67,7 @@ export default {
 
   // List view configuration
   listFields: ['title', 'author', 'status', 'publishedAt'],
-  searchFields: ['title', 'content', 'author'],
+  searchFields: ['title', 'excerpt', 'content', 'author'],
   defaultSort: 'createdAt',
   defaultSortOrder: 'desc',
 
