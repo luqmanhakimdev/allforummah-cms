@@ -76,17 +76,40 @@ async function main() {
     const passwordHash = await hashPassword(password)
     const nowMs = Date.now()
 
-    await env.DB.batch([
+    const existingCred = await env.DB.prepare(
+      "SELECT id FROM auth_account WHERE user_id = ? AND provider_id = 'credential'"
+    ).bind(user.id).first()
+
+    const stmts = [
       env.DB.prepare(
         'UPDATE auth_user SET password_hash = ?, updated_at = ? WHERE id = ?'
       ).bind(passwordHash, nowMs, user.id),
-      env.DB.prepare(
-        "UPDATE auth_account SET password = ?, updated_at = ? WHERE user_id = ? AND provider_id = 'credential'"
-      ).bind(passwordHash, nowMs, user.id),
-    ])
+    ]
+
+    if (existingCred) {
+      stmts.push(
+        env.DB.prepare(
+          'UPDATE auth_account SET password = ?, updated_at = ? WHERE id = ?'
+        ).bind(passwordHash, nowMs, existingCred.id)
+      )
+    } else {
+      // Self-registration via /auth/register/form used to skip this row — create it now
+      stmts.push(
+        env.DB.prepare(
+          `INSERT INTO auth_account (id, user_id, account_id, provider_id, password, created_at, updated_at)
+           VALUES (?, ?, ?, 'credential', ?, ?, ?)`
+        ).bind(`cred-${user.id}`, user.id, user.id, passwordHash, nowMs, nowMs)
+      )
+    }
+
+    await env.DB.batch(stmts)
 
     console.log(`✓ Password updated for ${email}`)
-    console.log('  Updated auth_user.password_hash and auth_account.password')
+    console.log(
+      existingCred
+        ? '  Updated auth_user.password_hash and auth_account.password'
+        : '  Updated auth_user.password_hash and created missing auth_account credential'
+    )
   } catch (error) {
     console.error('❌ Failed to update password:', error)
     await dispose()

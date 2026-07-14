@@ -40,6 +40,9 @@ ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='your-new-password' npm run set-passw
 ```
 
 Prefer `set-password:prod` over the admin UI password form — SonicJS login reads `auth_account`, while the UI only writes `auth_user.password_hash`.
+
+If a self-registered user cannot log in (`Credential account not found`), run `set-password:prod` for their email — that upserts the missing Better Auth credential row. (`@sonicjs-cms/core@3.0.0-beta.25` form registration is patched in this repo to create it.)
+
 ## Production status
 
 Already provisioned on Cloudflare:
