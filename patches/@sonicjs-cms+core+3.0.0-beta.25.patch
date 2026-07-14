@@ -1,8 +1,18 @@
 diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs b/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
-index a54eb33..b0b4396 100644
+index a54eb33..b7c2386 100644
 --- a/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
 +++ b/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
-@@ -7684,24 +7684,30 @@ authRoutes.post(
+@@ -3839,8 +3839,7 @@ function renderLoginPage(data, demoLoginActive = false) {
+             <!-- Links -->
+             <div class="mt-6 text-center">
+               <p class="text-sm text-zinc-400">
+-                Don't have an account?
+-                <a href="/auth/register" class="font-semibold text-white hover:text-zinc-300 transition-colors">Create one here</a>
++                Need an account? Contact an administrator.
+               </p>
+             </div>
+           </div>
+@@ -7684,24 +7683,30 @@ authRoutes.post(
        `);
        }
        const passwordHash = await chunkE7E3NL3Y_cjs.AuthManager.hashPassword(password);
@@ -46,11 +56,70 @@ index a54eb33..b0b4396 100644
        const profileConfig = getUserProfileConfig();
        if (profileConfig) {
          const regFields = getRegistrationFields();
+@@ -16153,26 +16158,32 @@ userRoutes.post("/users/new", async (c) => {
+     }
+     const passwordHash = await chunkE7E3NL3Y_cjs.AuthManager.hashPassword(password);
+     const userId = crypto.randomUUID();
+-    const createStmt = db.prepare(`
++    const nowMs = Date.now();
++    const nowSec = Math.floor(nowMs / 1e3);
++    // Better Auth sign-in requires auth_account credential row alongside auth_user
++    await db.batch([
++      db.prepare(`
+       INSERT INTO auth_user (
+         id, email, first_name, last_name, phone, bio,
+         password_hash, role, is_active, email_verified, created_at, updated_at
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+-    `);
+-    await createStmt.bind(
+-      userId,
+-      email,
+-      firstName,
+-      lastName,
+-      phone,
+-      bio,
+-      passwordHash,
+-      role,
+-      isActive ? 1 : 0,
+-      emailVerified ? 1 : 0,
+-      Date.now(),
+-      Date.now()
+-    ).run();
++    `).bind(
++        userId,
++        email,
++        firstName,
++        lastName,
++        phone,
++        bio,
++        passwordHash,
++        role,
++        isActive ? 1 : 0,
++        emailVerified ? 1 : 0,
++        nowMs,
++        nowMs
++      ),
++      db.prepare(`INSERT OR IGNORE INTO auth_account (id, user_id, account_id, provider_id, password, created_at, updated_at)
++        VALUES (?, ?, ?, 'credential', ?, ?, ?)`).bind(`cred-${userId}`, userId, userId, passwordHash, nowSec, nowSec)
++    ]);
+     if (sanitizedRegistrationCustom !== null && Object.keys(sanitizedRegistrationCustom).length > 0) {
+       await writeProfileData(db, userId, { custom: sanitizedRegistrationCustom }, user.userId);
+     }
 diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js b/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
-index 2aeb370..ac27ca4 100644
+index 2aeb370..832b869 100644
 --- a/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
 +++ b/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
-@@ -7682,24 +7682,30 @@ authRoutes.post(
+@@ -3837,8 +3837,7 @@ function renderLoginPage(data, demoLoginActive = false) {
+             <!-- Links -->
+             <div class="mt-6 text-center">
+               <p class="text-sm text-zinc-400">
+-                Don't have an account?
+-                <a href="/auth/register" class="font-semibold text-white hover:text-zinc-300 transition-colors">Create one here</a>
++                Need an account? Contact an administrator.
+               </p>
+             </div>
+           </div>
+@@ -7682,24 +7681,30 @@ authRoutes.post(
        `);
        }
        const passwordHash = await AuthManager.hashPassword(password);
@@ -94,6 +163,127 @@ index 2aeb370..ac27ca4 100644
        const profileConfig = getUserProfileConfig();
        if (profileConfig) {
          const regFields = getRegistrationFields();
+@@ -16151,26 +16156,32 @@ userRoutes.post("/users/new", async (c) => {
+     }
+     const passwordHash = await AuthManager.hashPassword(password);
+     const userId = crypto.randomUUID();
+-    const createStmt = db.prepare(`
++    const nowMs = Date.now();
++    const nowSec = Math.floor(nowMs / 1e3);
++    // Better Auth sign-in requires auth_account credential row alongside auth_user
++    await db.batch([
++      db.prepare(`
+       INSERT INTO auth_user (
+         id, email, first_name, last_name, phone, bio,
+         password_hash, role, is_active, email_verified, created_at, updated_at
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+-    `);
+-    await createStmt.bind(
+-      userId,
+-      email,
+-      firstName,
+-      lastName,
+-      phone,
+-      bio,
+-      passwordHash,
+-      role,
+-      isActive ? 1 : 0,
+-      emailVerified ? 1 : 0,
+-      Date.now(),
+-      Date.now()
+-    ).run();
++    `).bind(
++        userId,
++        email,
++        firstName,
++        lastName,
++        phone,
++        bio,
++        passwordHash,
++        role,
++        isActive ? 1 : 0,
++        emailVerified ? 1 : 0,
++        nowMs,
++        nowMs
++      ),
++      db.prepare(`INSERT OR IGNORE INTO auth_account (id, user_id, account_id, provider_id, password, created_at, updated_at)
++        VALUES (?, ?, ?, 'credential', ?, ?, ?)`).bind(`cred-${userId}`, userId, userId, passwordHash, nowSec, nowSec)
++    ]);
+     if (sanitizedRegistrationCustom !== null && Object.keys(sanitizedRegistrationCustom).length > 0) {
+       await writeProfileData(db, userId, { custom: sanitizedRegistrationCustom }, user.userId);
+     }
+diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-VVYVFCML.js b/node_modules/@sonicjs-cms/core/dist/chunk-VVYVFCML.js
+index f7377f0..3ff1158 100644
+--- a/node_modules/@sonicjs-cms/core/dist/chunk-VVYVFCML.js
++++ b/node_modules/@sonicjs-cms/core/dist/chunk-VVYVFCML.js
+@@ -1,28 +1,9 @@
+ import { z } from 'zod';
+ 
+ // src/services/auth-validation.ts
+-async function isRegistrationEnabled(db) {
+-  try {
+-    const row = await db.prepare(
+-      "SELECT data FROM documents WHERE slug = 'core-auth' AND type_id = 'plugin' AND tenant_id = 'default' AND is_current_draft = 1 AND deleted_at IS NULL"
+-    ).first();
+-    if (row?.data) {
+-      const data = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
+-      const enabled = data?.settings?.registration?.enabled;
+-      return enabled !== false && enabled !== 0;
+-    }
+-  } catch {
+-  }
+-  try {
+-    const plugin = await db.prepare("SELECT settings FROM plugins WHERE id = ?").bind("core-auth").first();
+-    if (plugin?.settings) {
+-      const settings = JSON.parse(plugin.settings);
+-      const enabled = settings?.registration?.enabled;
+-      return enabled !== false && enabled !== 0;
+-    }
+-  } catch {
+-  }
+-  return true;
++async function isRegistrationEnabled(_db) {
++  // Public self-registration disabled — only admins create users via /admin/users
++  return false;
+ }
+ async function isFirstUserRegistration(db) {
+   try {
+diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-XWVDSM2L.cjs b/node_modules/@sonicjs-cms/core/dist/chunk-XWVDSM2L.cjs
+index 256f5fa..ba11e9c 100644
+--- a/node_modules/@sonicjs-cms/core/dist/chunk-XWVDSM2L.cjs
++++ b/node_modules/@sonicjs-cms/core/dist/chunk-XWVDSM2L.cjs
+@@ -3,28 +3,9 @@
+ var zod = require('zod');
+ 
+ // src/services/auth-validation.ts
+-async function isRegistrationEnabled(db) {
+-  try {
+-    const row = await db.prepare(
+-      "SELECT data FROM documents WHERE slug = 'core-auth' AND type_id = 'plugin' AND tenant_id = 'default' AND is_current_draft = 1 AND deleted_at IS NULL"
+-    ).first();
+-    if (row?.data) {
+-      const data = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
+-      const enabled = data?.settings?.registration?.enabled;
+-      return enabled !== false && enabled !== 0;
+-    }
+-  } catch {
+-  }
+-  try {
+-    const plugin = await db.prepare("SELECT settings FROM plugins WHERE id = ?").bind("core-auth").first();
+-    if (plugin?.settings) {
+-      const settings = JSON.parse(plugin.settings);
+-      const enabled = settings?.registration?.enabled;
+-      return enabled !== false && enabled !== 0;
+-    }
+-  } catch {
+-  }
+-  return true;
++async function isRegistrationEnabled(_db) {
++  // Public self-registration disabled — only admins create users via /admin/users
++  return false;
+ }
+ async function isFirstUserRegistration(db) {
+   try {
 diff --git a/node_modules/@sonicjs-cms/core/dist/index.cjs b/node_modules/@sonicjs-cms/core/dist/index.cjs
 index c71767d..f1e025d 100644
 --- a/node_modules/@sonicjs-cms/core/dist/index.cjs

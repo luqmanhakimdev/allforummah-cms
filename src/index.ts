@@ -17,6 +17,16 @@ const config: SonicJSConfig = {
   plugins: {
     register: [],
   },
+  auth: {
+    // Block Better Auth public sign-up; users are created by admins only
+    extendBetterAuth: (opts) => ({
+      ...opts,
+      emailAndPassword: {
+        ...opts.emailAndPassword,
+        disableSignUp: true,
+      },
+    }),
+  },
 }
 
 export default createSonicJSApp(config)
