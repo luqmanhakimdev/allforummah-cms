@@ -23,7 +23,9 @@
     "set-password": "tsx scripts/set-password.ts",
     "set-password:prod": "tsx scripts/set-password.ts --remote",
     "promote-user": "tsx scripts/promote-user.ts",
-    "promote-user:prod": "tsx scripts/promote-user.ts --remote"
+    "promote-user:prod": "tsx scripts/promote-user.ts --remote",
+    "lock-editor-settings": "tsx scripts/lock-editor-settings.ts",
+    "lock-editor-settings:prod": "tsx scripts/lock-editor-settings.ts --remote"
   },
   "dependencies": {
     "@sonicjs-cms/core": "^3.0.0-beta.25"

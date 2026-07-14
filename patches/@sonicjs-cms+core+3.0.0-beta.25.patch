@@ -1,5 +1,5 @@
 diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs b/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
-index a54eb33..4104eb6 100644
+index a54eb33..0f978da 100644
 --- a/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
 +++ b/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
 @@ -3839,8 +3839,7 @@ function renderLoginPage(data, demoLoginActive = false) {
@@ -116,8 +116,24 @@ index a54eb33..4104eb6 100644
      if (newPassword) {
        const passwordHash = await chunkE7E3NL3Y_cjs.AuthManager.hashPassword(newPassword);
        const updatePasswordStmt = db.prepare(`
+@@ -22360,6 +22375,7 @@ function renderLogConfigPage(data) {
+ // src/routes/admin-logs.ts
+ var adminLogsRoutes = new hono.Hono();
+ adminLogsRoutes.use("*", chunkE7E3NL3Y_cjs.requireAuth());
++adminLogsRoutes.use("*", chunkE7E3NL3Y_cjs.requireRole(["admin"]));
+ adminLogsRoutes.get("/", async (c) => {
+   try {
+     const user = c.get("user");
+@@ -26587,6 +26603,7 @@ function renderDatabaseToolsSettings(settings) {
+ // src/routes/admin-settings.ts
+ var adminSettingsRoutes = new hono.Hono();
+ adminSettingsRoutes.use("*", chunkE7E3NL3Y_cjs.requireAuth());
++adminSettingsRoutes.use("*", chunkE7E3NL3Y_cjs.requireRole(["admin"]));
+ function getMockSettings(user) {
+   return {
+     general: {
 diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js b/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
-index 2aeb370..3d1b4da 100644
+index 2aeb370..7f615e2 100644
 --- a/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
 +++ b/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
 @@ -3837,8 +3837,7 @@ function renderLoginPage(data, demoLoginActive = false) {
@@ -234,6 +250,102 @@ index 2aeb370..3d1b4da 100644
      if (newPassword) {
        const passwordHash = await AuthManager.hashPassword(newPassword);
        const updatePasswordStmt = db.prepare(`
+@@ -22358,6 +22373,7 @@ function renderLogConfigPage(data) {
+ // src/routes/admin-logs.ts
+ var adminLogsRoutes = new Hono();
+ adminLogsRoutes.use("*", requireAuth());
++adminLogsRoutes.use("*", requireRole(["admin"]));
+ adminLogsRoutes.get("/", async (c) => {
+   try {
+     const user = c.get("user");
+@@ -26585,6 +26601,7 @@ function renderDatabaseToolsSettings(settings) {
+ // src/routes/admin-settings.ts
+ var adminSettingsRoutes = new Hono();
+ adminSettingsRoutes.use("*", requireAuth());
++adminSettingsRoutes.use("*", requireRole(["admin"]));
+ function getMockSettings(user) {
+   return {
+     general: {
+diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-BDQ55MWV.js b/node_modules/@sonicjs-cms/core/dist/chunk-BDQ55MWV.js
+index 92af16d..1836430 100644
+--- a/node_modules/@sonicjs-cms/core/dist/chunk-BDQ55MWV.js
++++ b/node_modules/@sonicjs-cms/core/dist/chunk-BDQ55MWV.js
+@@ -745,8 +745,7 @@ var RbacService = class _RbacService {
+           { resource: "document_type:*", verb: "read" },
+           { resource: "document_type:*", verb: "create" },
+           { resource: "document_type:*", verb: "update" },
+-          { resource: "document_type:*", verb: "delete" },
+-          { resource: "settings", verb: "read" }
++          { resource: "document_type:*", verb: "delete" }
+         ]
+       },
+       {
+diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-HSDJDWLV.js b/node_modules/@sonicjs-cms/core/dist/chunk-HSDJDWLV.js
+index eedf8a8..74a50f8 100644
+--- a/node_modules/@sonicjs-cms/core/dist/chunk-HSDJDWLV.js
++++ b/node_modules/@sonicjs-cms/core/dist/chunk-HSDJDWLV.js
+@@ -1010,7 +1010,7 @@ function renderSidebar(currentPath, user, dynamicMenuItems) {
+   const isAdmin = userRole === "admin";
+   const isEditor = userRole === "editor";
+   const canManageUsers = isAdmin;
+-  const canAccessSettings = isAdmin || isEditor;
++  const canAccessSettings = isAdmin;
+   const canAccessPlugins = isAdmin;
+   const baseMenuItems = [
+     {
+diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-JCBDXEY2.cjs b/node_modules/@sonicjs-cms/core/dist/chunk-JCBDXEY2.cjs
+index 711a190..9981032 100644
+--- a/node_modules/@sonicjs-cms/core/dist/chunk-JCBDXEY2.cjs
++++ b/node_modules/@sonicjs-cms/core/dist/chunk-JCBDXEY2.cjs
+@@ -747,8 +747,7 @@ var RbacService = class _RbacService {
+           { resource: "document_type:*", verb: "read" },
+           { resource: "document_type:*", verb: "create" },
+           { resource: "document_type:*", verb: "update" },
+-          { resource: "document_type:*", verb: "delete" },
+-          { resource: "settings", verb: "read" }
++          { resource: "document_type:*", verb: "delete" }
+         ]
+       },
+       {
+diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-MI2YXCK4.cjs b/node_modules/@sonicjs-cms/core/dist/chunk-MI2YXCK4.cjs
+index e858413..2f261f9 100644
+--- a/node_modules/@sonicjs-cms/core/dist/chunk-MI2YXCK4.cjs
++++ b/node_modules/@sonicjs-cms/core/dist/chunk-MI2YXCK4.cjs
+@@ -545,7 +545,7 @@ function renderCatalystSidebar(currentPath = "", user, dynamicMenuItems, isMobil
+   const isAdmin = userRole === "admin";
+   const isEditor = userRole === "editor";
+   const canManageUsers = isAdmin;
+-  const canAccessSettings = isAdmin || isEditor;
++  const canAccessSettings = isAdmin;
+   const canAccessPlugins = isAdmin;
+   let baseMenuItems = [
+     {
+diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-OUBUS74I.cjs b/node_modules/@sonicjs-cms/core/dist/chunk-OUBUS74I.cjs
+index 74a5f1b..867d315 100644
+--- a/node_modules/@sonicjs-cms/core/dist/chunk-OUBUS74I.cjs
++++ b/node_modules/@sonicjs-cms/core/dist/chunk-OUBUS74I.cjs
+@@ -1012,7 +1012,7 @@ function renderSidebar(currentPath, user, dynamicMenuItems) {
+   const isAdmin = userRole === "admin";
+   const isEditor = userRole === "editor";
+   const canManageUsers = isAdmin;
+-  const canAccessSettings = isAdmin || isEditor;
++  const canAccessSettings = isAdmin;
+   const canAccessPlugins = isAdmin;
+   const baseMenuItems = [
+     {
+diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-SXC4HPK6.js b/node_modules/@sonicjs-cms/core/dist/chunk-SXC4HPK6.js
+index eadbaf4..2faff52 100644
+--- a/node_modules/@sonicjs-cms/core/dist/chunk-SXC4HPK6.js
++++ b/node_modules/@sonicjs-cms/core/dist/chunk-SXC4HPK6.js
+@@ -543,7 +543,7 @@ function renderCatalystSidebar(currentPath = "", user, dynamicMenuItems, isMobil
+   const isAdmin = userRole === "admin";
+   const isEditor = userRole === "editor";
+   const canManageUsers = isAdmin;
+-  const canAccessSettings = isAdmin || isEditor;
++  const canAccessSettings = isAdmin;
+   const canAccessPlugins = isAdmin;
+   let baseMenuItems = [
+     {
 diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-VVYVFCML.js b/node_modules/@sonicjs-cms/core/dist/chunk-VVYVFCML.js
 index f7377f0..3ff1158 100644
 --- a/node_modules/@sonicjs-cms/core/dist/chunk-VVYVFCML.js

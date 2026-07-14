@@ -136,6 +136,8 @@ scripts/seed-admin.ts  # Admin bootstrap (local + --remote)
 | `npm run set-password:prod` | Reset production password |
 | `npm run promote-user` | Grant local user editor (or ROLE=admin) portal access |
 | `npm run promote-user:prod` | Same for production |
+| `npm run lock-editor-settings` | Strip settings grants from local editor role |
+| `npm run lock-editor-settings:prod` | Same for production |
 | `npm run type-check` | TypeScript check |
 
 ## Docs
