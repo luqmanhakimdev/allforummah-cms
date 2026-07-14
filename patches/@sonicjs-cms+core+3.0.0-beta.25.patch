@@ -1,0 +1,150 @@
+diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs b/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
+index a54eb33..38f86e1 100644
+--- a/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
++++ b/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
+@@ -7687,21 +7687,27 @@ authRoutes.post(
+       const role = isFirstUser ? "admin" : "viewer";
+       const userId = crypto.randomUUID();
+       const now = /* @__PURE__ */ new Date();
+-      await db.prepare(`
++      const nowSec = Math.floor(now.getTime() / 1e3);
++      // Better Auth sign-in/email requires an auth_account credential row — create it alongside auth_user
++      await db.batch([
++        db.prepare(`
+       INSERT INTO auth_user (id, email, first_name, last_name, password_hash, role, is_active, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+     `).bind(
+-        userId,
+-        normalizedEmail,
+-        firstName,
+-        lastName,
+-        passwordHash,
+-        role,
+-        1,
+-        // is_active
+-        now.getTime(),
+-        now.getTime()
+-      ).run();
++          userId,
++          normalizedEmail,
++          firstName,
++          lastName,
++          passwordHash,
++          role,
++          1,
++          // is_active
++          now.getTime(),
++          now.getTime()
++        ),
++        db.prepare(`INSERT OR IGNORE INTO auth_account (id, user_id, account_id, provider_id, password, created_at, updated_at)
++          VALUES (?, ?, ?, 'credential', ?, ?, ?)`).bind(`cred-${userId}`, userId, userId, passwordHash, nowSec, nowSec)
++      ]);
+       const profileConfig = getUserProfileConfig();
+       if (profileConfig) {
+         const regFields = getRegistrationFields();
+diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js b/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
+index 2aeb370..f9cec39 100644
+--- a/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
++++ b/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
+@@ -7685,21 +7685,27 @@ authRoutes.post(
+       const role = isFirstUser ? "admin" : "viewer";
+       const userId = crypto.randomUUID();
+       const now = /* @__PURE__ */ new Date();
+-      await db.prepare(`
++      const nowSec = Math.floor(now.getTime() / 1e3);
++      // Better Auth sign-in/email requires an auth_account credential row — create it alongside auth_user
++      await db.batch([
++        db.prepare(`
+       INSERT INTO auth_user (id, email, first_name, last_name, password_hash, role, is_active, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+     `).bind(
+-        userId,
+-        normalizedEmail,
+-        firstName,
+-        lastName,
+-        passwordHash,
+-        role,
+-        1,
+-        // is_active
+-        now.getTime(),
+-        now.getTime()
+-      ).run();
++          userId,
++          normalizedEmail,
++          firstName,
++          lastName,
++          passwordHash,
++          role,
++          1,
++          // is_active
++          now.getTime(),
++          now.getTime()
++        ),
++        db.prepare(`INSERT OR IGNORE INTO auth_account (id, user_id, account_id, provider_id, password, created_at, updated_at)
++          VALUES (?, ?, ?, 'credential', ?, ?, ?)`).bind(`cred-${userId}`, userId, userId, passwordHash, nowSec, nowSec)
++      ]);
+       const profileConfig = getUserProfileConfig();
+       if (profileConfig) {
+         const regFields = getRegistrationFields();
+diff --git a/node_modules/@sonicjs-cms/core/dist/index.cjs b/node_modules/@sonicjs-cms/core/dist/index.cjs
+index c71767d..f1e025d 100644
+--- a/node_modules/@sonicjs-cms/core/dist/index.cjs
++++ b/node_modules/@sonicjs-cms/core/dist/index.cjs
+@@ -1216,7 +1216,7 @@ function makeOnRegistrationCompleted(env) {
+       if (setting?.value === "true") return;
+     } catch {
+     }
+-    const user = await db.prepare("SELECT id, email, first_name FROM users WHERE id = ?").bind(payload.user.id).first();
++    const user = await db.prepare("SELECT id, email, first_name FROM auth_user WHERE id = ?").bind(payload.user.id).first();
+     if (!user) {
+       console.warn("[email-plugin] auth:registration:completed: user not found", {
+         userId: payload.user.id
+@@ -1288,7 +1288,7 @@ var DEFAULT_EXPIRY_MS = 60 * 60 * 1e3;
+ function makeOnPasswordResetRequested(env) {
+   const db = env.DB;
+   return async (payload) => {
+-    const user = await db.prepare("SELECT id, email, first_name FROM users WHERE id = ?").bind(payload.user.id).first();
++    const user = await db.prepare("SELECT id, email, first_name FROM auth_user WHERE id = ?").bind(payload.user.id).first();
+     if (!user) {
+       console.warn("[email-plugin] auth:password-reset:requested: user not found", {
+         userId: payload.user.id
+@@ -1357,7 +1357,7 @@ If you didn't change your password, contact support immediately at ${supportEmai
+ function makeOnPasswordResetCompleted(env) {
+   const db = env.DB;
+   return async (payload) => {
+-    const user = await db.prepare("SELECT id, email, first_name FROM users WHERE id = ?").bind(payload.user.id).first();
++    const user = await db.prepare("SELECT id, email, first_name FROM auth_user WHERE id = ?").bind(payload.user.id).first();
+     if (!user) {
+       console.warn("[email-plugin] auth:password-reset:completed: user not found", {
+         userId: payload.user.id
+diff --git a/node_modules/@sonicjs-cms/core/dist/index.js b/node_modules/@sonicjs-cms/core/dist/index.js
+index 122d570..bbbf1e8 100644
+--- a/node_modules/@sonicjs-cms/core/dist/index.js
++++ b/node_modules/@sonicjs-cms/core/dist/index.js
+@@ -1227,7 +1227,7 @@ function makeOnRegistrationCompleted(env) {
+       if (setting?.value === "true") return;
+     } catch {
+     }
+-    const user = await db.prepare("SELECT id, email, first_name FROM users WHERE id = ?").bind(payload.user.id).first();
++    const user = await db.prepare("SELECT id, email, first_name FROM auth_user WHERE id = ?").bind(payload.user.id).first();
+     if (!user) {
+       console.warn("[email-plugin] auth:registration:completed: user not found", {
+         userId: payload.user.id
+@@ -1299,7 +1299,7 @@ var DEFAULT_EXPIRY_MS = 60 * 60 * 1e3;
+ function makeOnPasswordResetRequested(env) {
+   const db = env.DB;
+   return async (payload) => {
+-    const user = await db.prepare("SELECT id, email, first_name FROM users WHERE id = ?").bind(payload.user.id).first();
++    const user = await db.prepare("SELECT id, email, first_name FROM auth_user WHERE id = ?").bind(payload.user.id).first();
+     if (!user) {
+       console.warn("[email-plugin] auth:password-reset:requested: user not found", {
+         userId: payload.user.id
+@@ -1368,7 +1368,7 @@ If you didn't change your password, contact support immediately at ${supportEmai
+ function makeOnPasswordResetCompleted(env) {
+   const db = env.DB;
+   return async (payload) => {
+-    const user = await db.prepare("SELECT id, email, first_name FROM users WHERE id = ?").bind(payload.user.id).first();
++    const user = await db.prepare("SELECT id, email, first_name FROM auth_user WHERE id = ?").bind(payload.user.id).first();
+     if (!user) {
+       console.warn("[email-plugin] auth:password-reset:completed: user not found", {
+         userId: payload.user.id
