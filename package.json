@@ -21,7 +21,9 @@
     "seed": "tsx scripts/seed-admin.ts",
     "seed:prod": "tsx scripts/seed-admin.ts --remote",
     "set-password": "tsx scripts/set-password.ts",
-    "set-password:prod": "tsx scripts/set-password.ts --remote"
+    "set-password:prod": "tsx scripts/set-password.ts --remote",
+    "promote-user": "tsx scripts/promote-user.ts",
+    "promote-user:prod": "tsx scripts/promote-user.ts --remote"
   },
   "dependencies": {
     "@sonicjs-cms/core": "^3.0.0-beta.25"
