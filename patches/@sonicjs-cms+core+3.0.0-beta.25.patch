@@ -1,5 +1,5 @@
 diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs b/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
-index a54eb33..b7c2386 100644
+index a54eb33..4104eb6 100644
 --- a/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
 +++ b/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
 @@ -3839,8 +3839,7 @@ function renderLoginPage(data, demoLoginActive = false) {
@@ -56,7 +56,7 @@ index a54eb33..b7c2386 100644
        const profileConfig = getUserProfileConfig();
        if (profileConfig) {
          const regFields = getRegistrationFields();
-@@ -16153,26 +16158,32 @@ userRoutes.post("/users/new", async (c) => {
+@@ -16153,26 +16158,34 @@ userRoutes.post("/users/new", async (c) => {
      }
      const passwordHash = await chunkE7E3NL3Y_cjs.AuthManager.hashPassword(password);
      const userId = crypto.randomUUID();
@@ -102,11 +102,22 @@ index a54eb33..b7c2386 100644
 +      db.prepare(`INSERT OR IGNORE INTO auth_account (id, user_id, account_id, provider_id, password, created_at, updated_at)
 +        VALUES (?, ?, ?, 'credential', ?, ?, ?)`).bind(`cred-${userId}`, userId, userId, passwordHash, nowSec, nowSec)
 +    ]);
++    // Sync RBAC role docs (portal:access); auth_user.role alone is not enough for /admin
++    await new chunkJCBDXEY2_cjs.RbacService(db).setUserRoles(userId, [role]);
      if (sanitizedRegistrationCustom !== null && Object.keys(sanitizedRegistrationCustom).length > 0) {
        await writeProfileData(db, userId, { custom: sanitizedRegistrationCustom }, user.userId);
      }
+@@ -16429,6 +16442,8 @@ userRoutes.put("/users/:id", async (c) => {
+       Date.now(),
+       userId
+     ).run();
++    // Keep rbac_user_roles in sync so portal:access and requireRole stay consistent
++    await new chunkJCBDXEY2_cjs.RbacService(db).setUserRoles(userId, [role]);
+     if (newPassword) {
+       const passwordHash = await chunkE7E3NL3Y_cjs.AuthManager.hashPassword(newPassword);
+       const updatePasswordStmt = db.prepare(`
 diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js b/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
-index 2aeb370..832b869 100644
+index 2aeb370..3d1b4da 100644
 --- a/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
 +++ b/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
 @@ -3837,8 +3837,7 @@ function renderLoginPage(data, demoLoginActive = false) {
@@ -163,7 +174,7 @@ index 2aeb370..832b869 100644
        const profileConfig = getUserProfileConfig();
        if (profileConfig) {
          const regFields = getRegistrationFields();
-@@ -16151,26 +16156,32 @@ userRoutes.post("/users/new", async (c) => {
+@@ -16151,26 +16156,34 @@ userRoutes.post("/users/new", async (c) => {
      }
      const passwordHash = await AuthManager.hashPassword(password);
      const userId = crypto.randomUUID();
@@ -209,9 +220,20 @@ index 2aeb370..832b869 100644
 +      db.prepare(`INSERT OR IGNORE INTO auth_account (id, user_id, account_id, provider_id, password, created_at, updated_at)
 +        VALUES (?, ?, ?, 'credential', ?, ?, ?)`).bind(`cred-${userId}`, userId, userId, passwordHash, nowSec, nowSec)
 +    ]);
++    // Sync RBAC role docs (portal:access); auth_user.role alone is not enough for /admin
++    await new RbacService(db).setUserRoles(userId, [role]);
      if (sanitizedRegistrationCustom !== null && Object.keys(sanitizedRegistrationCustom).length > 0) {
        await writeProfileData(db, userId, { custom: sanitizedRegistrationCustom }, user.userId);
      }
+@@ -16427,6 +16440,8 @@ userRoutes.put("/users/:id", async (c) => {
+       Date.now(),
+       userId
+     ).run();
++    // Keep rbac_user_roles in sync so portal:access and requireRole stay consistent
++    await new RbacService(db).setUserRoles(userId, [role]);
+     if (newPassword) {
+       const passwordHash = await AuthManager.hashPassword(newPassword);
+       const updatePasswordStmt = db.prepare(`
 diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-VVYVFCML.js b/node_modules/@sonicjs-cms/core/dist/chunk-VVYVFCML.js
 index f7377f0..3ff1158 100644
 --- a/node_modules/@sonicjs-cms/core/dist/chunk-VVYVFCML.js

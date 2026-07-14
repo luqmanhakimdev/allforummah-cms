@@ -45,13 +45,13 @@ Public self-registration is disabled. Admins create accounts at **Admin → User
 
 If an older account cannot log in (`Credential account not found`), run `set-password:prod` for their email — that upserts the missing Better Auth credential row.
 
-If login succeeds but they see **You do not have permission to access this area**, they lack RBAC `portal:access` (legacy `viewer` is not a real admin role). Promote them:
+If login succeeds but they see **You do not have permission to access this area**, they lack an RBAC role assignment with `portal:access` (the Users UI used to write only `auth_user.role`). Promote them:
 
 ```bash
 ADMIN_EMAIL=user@example.com npm run promote-user:prod
 ```
 
-Use `ROLE=admin` if they need full admin access; default is `editor`.
+Use `ROLE=admin` if they need full admin access; default is `editor`. After deploying the current `@sonicjs-cms/core` patch, newly created users get RBAC roles automatically.
 
 ## Production status
 
