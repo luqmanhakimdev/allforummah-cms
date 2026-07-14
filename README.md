@@ -41,7 +41,9 @@ ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='your-new-password' npm run set-passw
 
 Prefer `set-password:prod` over the admin UI password form — SonicJS login reads `auth_account`, while the UI only writes `auth_user.password_hash`.
 
-If a self-registered user cannot log in (`Credential account not found`), run `set-password:prod` for their email — that upserts the missing Better Auth credential row. (`@sonicjs-cms/core@3.0.0-beta.25` form registration is patched in this repo to create it.)
+Public self-registration is disabled. Admins create accounts at **Admin → Users → Create New User** (`/admin/users/new`). That flow creates both `auth_user` and the Better Auth credential row so the user can log in immediately.
+
+If an older account cannot log in (`Credential account not found`), run `set-password:prod` for their email — that upserts the missing Better Auth credential row.
 
 If login succeeds but they see **You do not have permission to access this area**, they lack RBAC `portal:access` (legacy `viewer` is not a real admin role). Promote them:
 
@@ -49,7 +51,7 @@ If login succeeds but they see **You do not have permission to access this area*
 ADMIN_EMAIL=user@example.com npm run promote-user:prod
 ```
 
-New self-registrations are patched to get the `editor` role (portal access). First user remains `admin`.
+Use `ROLE=admin` if they need full admin access; default is `editor`.
 
 ## Production status
 
