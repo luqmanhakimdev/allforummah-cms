@@ -43,6 +43,14 @@ Prefer `set-password:prod` over the admin UI password form — SonicJS login rea
 
 If a self-registered user cannot log in (`Credential account not found`), run `set-password:prod` for their email — that upserts the missing Better Auth credential row. (`@sonicjs-cms/core@3.0.0-beta.25` form registration is patched in this repo to create it.)
 
+If login succeeds but they see **You do not have permission to access this area**, they lack RBAC `portal:access` (legacy `viewer` is not a real admin role). Promote them:
+
+```bash
+ADMIN_EMAIL=user@example.com npm run promote-user:prod
+```
+
+New self-registrations are patched to get the `editor` role (portal access). First user remains `admin`.
+
 ## Production status
 
 Already provisioned on Cloudflare:
@@ -124,6 +132,8 @@ scripts/seed-admin.ts  # Admin bootstrap (local + --remote)
 | `npm run seed:prod` | Seed production admin |
 | `npm run set-password` | Reset local password |
 | `npm run set-password:prod` | Reset production password |
+| `npm run promote-user` | Grant local user editor (or ROLE=admin) portal access |
+| `npm run promote-user:prod` | Same for production |
 | `npm run type-check` | TypeScript check |
 
 ## Docs

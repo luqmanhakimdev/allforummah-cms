@@ -1,9 +1,13 @@
 diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs b/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
-index a54eb33..38f86e1 100644
+index a54eb33..b0b4396 100644
 --- a/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
 +++ b/node_modules/@sonicjs-cms/core/dist/chunk-6OA77UM7.cjs
-@@ -7687,21 +7687,27 @@ authRoutes.post(
-       const role = isFirstUser ? "admin" : "viewer";
+@@ -7684,24 +7684,30 @@ authRoutes.post(
+       `);
+       }
+       const passwordHash = await chunkE7E3NL3Y_cjs.AuthManager.hashPassword(password);
+-      const role = isFirstUser ? "admin" : "viewer";
++      const role = isFirstUser ? "admin" : "editor";
        const userId = crypto.randomUUID();
        const now = /* @__PURE__ */ new Date();
 -      await db.prepare(`
@@ -43,11 +47,15 @@ index a54eb33..38f86e1 100644
        if (profileConfig) {
          const regFields = getRegistrationFields();
 diff --git a/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js b/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
-index 2aeb370..f9cec39 100644
+index 2aeb370..ac27ca4 100644
 --- a/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
 +++ b/node_modules/@sonicjs-cms/core/dist/chunk-7P5OCUPS.js
-@@ -7685,21 +7685,27 @@ authRoutes.post(
-       const role = isFirstUser ? "admin" : "viewer";
+@@ -7682,24 +7682,30 @@ authRoutes.post(
+       `);
+       }
+       const passwordHash = await AuthManager.hashPassword(password);
+-      const role = isFirstUser ? "admin" : "viewer";
++      const role = isFirstUser ? "admin" : "editor";
        const userId = crypto.randomUUID();
        const now = /* @__PURE__ */ new Date();
 -      await db.prepare(`
